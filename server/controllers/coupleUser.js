@@ -3,6 +3,7 @@ import Tokens from '../models/Tokens.js';
 import CoupleUser from '../models/CoupleUser.js';
 import { sendResetEmail } from '../middlewares/sendMail.js';
 import { createToken, generateResetToken } from '../middlewares/jwt.js';
+import { coupleUserErrorLogger, coupleUserInfoLogger } from '../middlewares/logger.js';
 
 // todo : add a validations to all fields
 
@@ -27,14 +28,18 @@ export const register = async (req, res) => {
 				});
 
 				await saveUser.save();
+				coupleUserInfoLogger.log('info', 'User created! status code: 201');
 				res.status(codes.created).json({ message: 'User created successfully!!' }).send();
 			} else {
+				coupleUserErrorLogger.log('error', ` User already exist! status code: 409`);
 				res.status(codes.probInValid).json({ message: 'User already exist!' });
 			}
 		} else {
+			coupleUserErrorLogger.log('error', ` The passwords must match!! status code: 409`);
 			res.status(codes.probInValid).json({ message: 'The passwords must match!!' });
 		}
 	} catch (error) {
+		coupleUserErrorLogger.log('error', `${error.message}. status code: 500`);
 		res.status(codes.err).json(error.message);
 	}
 };
@@ -52,11 +57,14 @@ export const login = async (req, res) => {
 
 			//send token to the client side
 			res.cookie('token', token, { ...cookieData, axAge: 60 * 60 * 1000 });
+			coupleUserInfoLogger.log('info', 'Token set in cookie status code: 200');
 			res.status(codes.success).json({ success: true, message: 'Token set in cookie' });
 		} else {
+			coupleUserErrorLogger.log('error', ` Wrong UserName Or Pass! status code: 409`);
 			res.status(codes.probInValid).json({ message: 'Wrong UserName Or Pass!' });
 		}
 	} catch (error) {
+		coupleUserErrorLogger.log('error', `${error.message}. status code: 500`);
 		res.status(codes.err).json(error.message);
 	}
 };
@@ -73,14 +81,18 @@ export const changePass = async (req, res) => {
 				const hashedNewPassword = await encryptPass(newPassword);
 
 				await CoupleUser.findByIdAndUpdate(user._id, { password: hashedNewPassword }, { new: true });
+				coupleUserInfoLogger.log('info', 'User password updated successfully!. status code: 200');
 				res.status(codes.success).send('User password updated successfully!');
 			} else {
+				coupleUserErrorLogger.log('error', ` The passwords do not match. status code: 409`);
 				res.status(codes.probInValid).json({ message: 'The passwords do not match' });
 			}
 		} else {
+			coupleUserErrorLogger.log('error', ` Wrong Pass!. status code: 409`);
 			res.status(codes.probInValid).json({ message: 'Wrong Pass!' });
 		}
 	} catch (error) {
+		coupleUserErrorLogger.log('error', `${error.message}. status code: 500`);
 		res.status(codes.err).json(error.message);
 	}
 };
@@ -100,11 +112,14 @@ export const resetPass = async (req, res) => {
 			});
 			await saveToken.save();
 			sendResetEmail(email, randomToken);
+			coupleUserInfoLogger.log('info', 'reset mail sent. status code: 200');
 			res.status(codes.success).json({ message: 'reset mail sent, please check your inbox' });
 		} else {
+			coupleUserErrorLogger.log('error', ` Wrong Mail!. status code: 409`);
 			res.status(codes.probInValid).json({ message: 'Wrong Mail!' });
 		}
 	} catch (error) {
+		coupleUserErrorLogger.log('error', `${error.message}. status code: 500`);
 		res.status(codes.err).json(error.message);
 	}
 };
@@ -123,11 +138,14 @@ export const resetOnProgress = async (req, res) => {
 
 			res.cookie('resetToken', newToken, { ...cookieData, axAge: 3 * 60 * 1000 });
 			//  לעשות redirect בפרונט להעביר לדף איפוס סיסמה כמו שצריך:
+			coupleUserInfoLogger.log('info', 'reset token set in cookie. status code: 200');
 			res.status(codes.success).json({ success: true, message: 'reset token set in cookie' });
 		} else {
+			coupleUserErrorLogger.log('error', ` Invalid token. status code: 409`);
 			res.status(codes.probInValid).json({ message: 'Invalid token' });
 		}
 	} catch (error) {
+		coupleUserErrorLogger.log('error', `${error.message}. status code: 500`);
 		res.status(codes.err).json(error.message);
 	}
 };
@@ -148,11 +166,14 @@ export const actualResetPass = async (req, res) => {
 				secure: process.env.NODE_ENV === 'production',
 				sameSite: 'strict',
 			});
+			coupleUserInfoLogger.log('info', 'password changed. status code: 200');
 			res.status(codes.success).json({ success: true, message: 'password changed' });
 		} else {
+			coupleUserErrorLogger.log('error', ` Error, please try again. status code: 409`);
 			res.status(codes.probInValid).json({ message: messages.error });
 		}
 	} catch (error) {
+		coupleUserErrorLogger.log('error', `${error.message}. status code: 500`);
 		res.status(codes.err).json(error.message);
 	}
 };
@@ -166,14 +187,18 @@ export const deleteAccount = async (req, res) => {
 			const validate = bcrypt.compareSync(password, user.password);
 			if (validate) {
 				await CoupleUser.updateOne({ _id: user._id }, { $set: { accountStatus: 'unavailable' } });
+				coupleUserInfoLogger.log('info', 'user deleted. status code: 200');
 				res.status(codes.success).json({ success: true, message: 'user deleted' });
 			} else {
+				coupleUserErrorLogger.log('error', ` Error, please try again. status code: 409`);
 				res.status(codes.probInValid).json({ message: messages.error });
 			}
 		} else {
+			coupleUserErrorLogger.log('error', ` Error, please try again. status code: 409`);
 			res.status(codes.probInValid).json({ message: messages.error });
 		}
 	} catch (error) {
+		coupleUserErrorLogger.log('error', `${error.message}. status code: 500`);
 		res.status(codes.err).json(error.message);
 	}
 };
