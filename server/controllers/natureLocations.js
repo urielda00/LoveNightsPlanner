@@ -1,0 +1,1 @@
+import NatureLocation from "../models/NatureLocation";
