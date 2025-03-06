@@ -37,7 +37,7 @@ export const loginValidation = [
 	check('password').trim().notEmpty().withMessage('Please enter password'),
 ];
 // UPDATE PASS
-export const updateUserPassValidation = [
+export const changePass = [
 	check('coupleNickName').trim().notEmpty().withMessage('Please enter coupleNickName'),
 
 	check('password').trim().notEmpty().withMessage('Please enter your existing password'),
