@@ -6,15 +6,15 @@ import { createToken, generateResetToken } from '../middlewares/jwt.js';
 import { coupleUserErrorLogger, coupleUserInfoLogger } from '../middlewares/logger.js';
 
 // todo : add a validations to all fields
+// the admin will added by hand inside the DB. we have the role field with user as def.
 
 // register a new user:
 export const register = async (req, res) => {
 	try {
 		// declarations for first validations:
 		const { coupleNickName, emailOne, password, verifiedPass } = req.body;
-		const emailsChecker = emailOne;
 		const isCoupleExisted = await CoupleUser.findOne({ coupleNickName });
-		const isMailExisted = await CoupleUser.findOne({ emailsChecker });
+		const isMailExisted = await CoupleUser.findOne({ emailOne });
 
 		if (password == verifiedPass) {
 			if (!isCoupleExisted && !isMailExisted) {
@@ -53,7 +53,7 @@ export const login = async (req, res) => {
 		const isMatchPass = bcrypt.compareSync(password, user.password);
 
 		if (isMatchPass && user && user.accountStatus == 'available') {
-			const token = createToken(user._id);
+			const token = createToken(user._id, user.role);
 
 			//send token to the client side
 			res.cookie('token', token, { ...cookieData, axAge: 60 * 60 * 1000 });
@@ -133,7 +133,7 @@ export const resetOnProgress = async (req, res) => {
 			// delete the token from the db
 			await Tokens.findOneAndDelete({ token });
 
-			const newToken = createToken('someString');
+			const newToken = createToken('someString','someRole');
 
 			res.cookie('resetToken', newToken, { ...cookieData, axAge: 3 * 60 * 1000 });
 			//  לעשות redirect בפרונט להעביר לדף איפוס סיסמה כמו שצריך:

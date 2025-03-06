@@ -8,8 +8,8 @@ const AttractionSchema = new mongoose.Schema(
 		category: { type: String, enum: ['טבע', 'מסעדה', 'אטרקציה', 'תרבות', 'אחר'], required: true },
 		location: { type: String, required: true },
 		avgRating: { type: Number, default: 0, min: 0, max: 5 },
-		// priceRange: { type: String, enum: ['חינם', 'זול', 'בינוני', 'יקר'] },
-		// website: { type: String },
+		priceRange: { type: String, enum: ['חינם', 'זול', 'בינוני', 'יקר'] },
+		website: { type: String },
 	},
 	{ timestamps: true }
 );

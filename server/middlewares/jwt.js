@@ -8,8 +8,8 @@ dotenv.config();
 const secret = process.env.JWT_CODE;
 
 // for login
-export const createToken = (userId) => {
-	return jwt.sign({ userId }, secret, { expiresIn: '1h' });
+export const createToken = (userId, userRole) => {
+	return jwt.sign({ userId,role: userRole  }, secret, { expiresIn: '1h' });
 };
 
 
