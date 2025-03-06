@@ -11,7 +11,7 @@ import { coupleUserErrorLogger, coupleUserInfoLogger } from '../middlewares/logg
 export const register = async (req, res) => {
 	try {
 		// declarations for first validations:
-		const { coupleNickName, emailOne, emailTwo, password, verifiedPass } = req.body;
+		const { coupleNickName, emailOne, password, verifiedPass } = req.body;
 		const emailsChecker = emailOne;
 		const isCoupleExisted = await CoupleUser.findOne({ coupleNickName });
 		const isMailExisted = await CoupleUser.findOne({ emailsChecker });
@@ -22,7 +22,7 @@ export const register = async (req, res) => {
 
 				const saveUser = new CoupleUser({
 					emailOne,
-					emailTwo,
+					
 					coupleNickName,
 					password: hashedPassword,
 				});
@@ -102,9 +102,8 @@ export const resetPass = async (req, res) => {
 	try {
 		const { email } = req.body;
 		const checkEmail = await CoupleUser.findOne({ emailOne: email });
-		const checkSecondEmail = await CoupleUser.findOne({ emailTwo: email });
 
-		if (checkEmail || checkSecondEmail) {
+		if (checkEmail ) {
 			const randomToken = generateResetToken();
 
 			const saveToken = new Tokens({

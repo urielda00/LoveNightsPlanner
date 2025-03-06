@@ -5,7 +5,6 @@ const CoupleSchema = new mongoose.Schema(
 	{
 		coupleNickName: { type: String, required: true, unique: true },
 		emailOne: { type: String, required: true, unique: true },
-		emailTwo: { type: String, unique: true }, //optional
 		password: { type: String, required: true, min: 5 },
 		dates: [
 			{
