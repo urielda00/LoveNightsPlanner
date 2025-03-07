@@ -15,6 +15,7 @@ export const ValidationResult = (req, res, next) => {
 	next();
 };
 
+// User validation:
 // REGISTER
 export const registerValidation = [
 	check('coupleNickName')
@@ -57,6 +58,9 @@ export const deleteUserValidation = [
 
 	check('password').trim().notEmpty().withMessage('Please enter your existing password'),
 ];
+
+// Attractions validation:
+
 
 // // CREATE PRODUCT
 // export const createProductValidation = [

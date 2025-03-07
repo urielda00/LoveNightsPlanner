@@ -22,7 +22,7 @@ export const register = async (req, res) => {
 
 				const saveUser = new CoupleUser({
 					emailOne,
-					
+
 					coupleNickName,
 					password: hashedPassword,
 				});
@@ -54,9 +54,9 @@ export const login = async (req, res) => {
 
 		if (isMatchPass && user && user.accountStatus == 'available') {
 			const token = createToken(user._id, user.role);
-
+			const setRoleTimer = user.role == 'admin' ? 15 : 60; // if admin logout after 5 min
 			//send token to the client side
-			res.cookie('token', token, { ...cookieData, axAge: 60 * 60 * 1000 });
+			res.cookie('loginToken', token, { ...cookieData, axAge: setRoleTimer * 60 * 1000 });
 			coupleUserInfoLogger.log('info', 'Token set in cookie status code: 200');
 			res.status(codes.success).json({ success: true, message: 'Token set in cookie' });
 		} else {
@@ -103,7 +103,7 @@ export const resetPass = async (req, res) => {
 		const { email } = req.body;
 		const checkEmail = await CoupleUser.findOne({ emailOne: email });
 
-		if (checkEmail ) {
+		if (checkEmail) {
 			const randomToken = generateResetToken();
 
 			const saveToken = new Tokens({
@@ -133,7 +133,7 @@ export const resetOnProgress = async (req, res) => {
 			// delete the token from the db
 			await Tokens.findOneAndDelete({ token });
 
-			const newToken = createToken('someString','someRole');
+			const newToken = createToken('someString', 'someRole');
 
 			res.cookie('resetToken', newToken, { ...cookieData, axAge: 3 * 60 * 1000 });
 			//  לעשות redirect בפרונט להעביר לדף איפוס סיסמה כמו שצריך:
@@ -201,6 +201,9 @@ export const deleteAccount = async (req, res) => {
 		res.status(codes.err).json(error.message);
 	}
 };
+
+// log out:
+// just need to delete the token in the client side cookie.
 
 // helper functions/ data:
 const encryptPass = async (password) => {

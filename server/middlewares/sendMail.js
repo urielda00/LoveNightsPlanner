@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
-import nodemailer from 'nodemailer'
+import nodemailer from 'nodemailer';
+
 // configuration:
 dotenv.config();
 const myMail = process.env.MAIL;
@@ -14,7 +15,6 @@ const transporter = nodemailer.createTransport({
 		pass: appPass,
 	},
 });
-
 
 export const sendResetEmail = (userEmail, resetToken) => {
 	const resetUrl = `${domain}/auth/reset-password/${resetToken}`;

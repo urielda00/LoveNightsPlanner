@@ -25,9 +25,10 @@ app.use(cors());
 app.use(helmet());
 app.use(express.json());
 app.use(morgan('common')); //logger of morgan
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-//app.use('/getStatic', express.static('uploads'));
-app.use(express.urlencoded({ limit: '30mb', extended: false }));
+app.use('/uploads', express.static('uploads'));
+app.use(express.urlencoded({ limit: '30mb', extended: true }));
 app.use(helmet.crossOriginResourcePolicy({ policy: 'cross-origin' })); //for XXS
 
 // routers
